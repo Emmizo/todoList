@@ -1,0 +1,38 @@
+{
+  "canisters": {
+    "todo_list_backend": {
+      "build": "npx azle todo_list_backend",
+      "candid": "src/todo_list_backend/todo_list_backend.did",
+      "gzip": true,
+      "main": "src/todo_list_backend/src/index.ts",
+      "tech_stack": {
+        "cdk": {
+          "azle": {}
+        },
+        "language": {
+          "typescript": {}
+        }
+      },
+      "type": "custom",
+      "wasm": ".azle/todo_list_backend/todo_list_backend.wasm"
+    },
+    "todo_list_frontend": {
+      "dependencies": [
+        "todo_list_backend"
+      ],
+      "source": [
+        "src/todo_list_frontend/dist"
+      ],
+      "type": "assets",
+      "workspace": "todo_list_frontend"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
