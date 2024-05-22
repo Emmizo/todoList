@@ -1,3 +1,48 @@
-service : {
-    "greet" : (text) -> (text) query;
-}
+type Url = text;
+type Method = text;
+type Body = vec nat8;
+type Headers = vec record { text; text };
+type CertificateVersion = opt nat16;
+
+type Token = record {};
+type CallbackInput = record {};
+type CallbackOutput = opt record { token : opt Token; body : Body };
+
+type StreamingStrategyCallback = record {
+    token : Token;
+    callback : func(CallbackInput) -> CallbackOutput query;
+};
+
+type StreamingStrategy = opt variant {
+    Callback : StreamingStrategyCallback;
+};
+
+type Response = record {
+    body : Body;
+    headers : Headers;
+    upgrade : opt bool;
+    streaming_strategy : StreamingStrategy;
+    status_code : nat16;
+};
+
+service : () = > {
+    http_request : (
+        record {
+            url : Url;
+            method : Method;
+            body : Body;
+            headers : Headers;
+            certificate_version : CertificateVersion;
+        }
+    ) -> Response query;
+
+    http_request_update : (
+        record {
+            url : Url;
+            method : Method;
+            body : Body;
+            headers : Headers;
+            certificate_version : CertificateVersion;
+        }
+    ) -> Response query;
+};

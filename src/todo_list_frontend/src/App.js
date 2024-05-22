@@ -1,40 +1,72 @@
-import { html, render } from 'lit-html';
-import { todo_list_backend } from 'declarations/todo_list_backend';
-import logo from './logo2.svg';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-class App {
-  greeting = '';
+function App() {
+  const [todos, setTodos] = useState([]);
+  const [newTodo, setNewTodo] = useState({ title: "", description: "" });
 
-  constructor() {
-    this.#render();
-  }
+  useEffect(() => {
+    fetchTodos();
+  }, []);
 
-  #handleSubmit = async (e) => {
-    e.preventDefault();
-    const name = document.getElementById('name').value;
-    this.greeting = await todo_list_backend.greet(name);
-    this.#render();
+  const fetchTodos = async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/todos");
+      setTodos(response.data);
+    } catch (error) {
+      console.error("Error fetching todos:", error);
+    }
   };
 
-  #render() {
-    let body = html`
-      <main>
-        <img src="${logo}" alt="DFINITY logo" />
-        <br />
-        <br />
-        <form action="#">
-          <label for="name">Enter your name: &nbsp;</label>
-          <input id="name" alt="Name" type="text" />
-          <button type="submit">Click Me!</button>
-        </form>
-        <section id="greeting">${this.greeting}</section>
-      </main>
-    `;
-    render(body, document.getElementById('root'));
-    document
-      .querySelector('form')
-      .addEventListener('submit', this.#handleSubmit);
-  }
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewTodo({
+      ...newTodo,
+      [name]: value,
+    });
+  };
+
+  const addTodo = async () => {
+    try {
+      await axios.post("http://localhost:3000/todos", newTodo);
+      fetchTodos();
+      setNewTodo({ title: "", description: "" });
+    } catch (error) {
+      console.error("Error adding todo:", error);
+    }
+  };
+
+  return (
+    <div className="App">
+      <h1>Todo List</h1>
+      <div>
+        <input
+          type="text"
+          name="title"
+          placeholder="Title"
+          value={newTodo.title}
+          onChange={handleInputChange}
+        />
+        <input
+          type="text"
+          name="description"
+          placeholder="Description"
+          value={newTodo.description}
+          onChange={handleInputChange}
+        />
+        <button onClick={addTodo}>Add Todo</button>
+      </div>
+      <ul>
+        {todos.map((todo) => (
+          <li key={todo.id}>
+            <h3>{todo.title}</h3>
+            <p>{todo.description}</p>
+            <button>Delete</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 export default App;
